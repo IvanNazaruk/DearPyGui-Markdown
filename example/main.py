@@ -1,6 +1,15 @@
 import dearpygui.dearpygui as dpg
 
-import DearPyGui_Markdown as dpg_markdown
+try:
+    import DearPyGui_Markdown as dpg_markdown
+except ModuleNotFoundError:
+    import os
+    import sys
+    # import from parent folder
+    current = os.path.dirname(os.path.realpath(__file__))
+    sys.path.append(os.path.dirname(current))
+    import DearPyGui_Markdown as dpg_markdown
+
 import font
 import test_text
 

@@ -305,12 +305,12 @@ class MarkdownText:
 def add_text(markdown_text: str,
              wrap: float | int = -1,
              parent: int | str = 0,
-             pos: list[int | float, int | float] | tuple[int | float, int | float] = None, ):
-    '''
+             pos: list[int | float, int | float] | tuple[int | float, int | float] = None, ) -> int:
+    ''' Adds Markdown text.
     :param wrap: Number of pixels from the start of the item until wrapping starts.
     :param parent: Parent to add this item to. (runtime adding)
     :pos: Places the item relative to window coordinates, [0,0] is top left.
-    :return: group with rendered text
+    :return: group with rendered Markdown text
     '''
     rendered_group = MarkdownText(markdown_text=markdown_text).add(wrap=wrap, parent=parent)
     if pos is not None:

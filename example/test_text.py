@@ -18,8 +18,11 @@ ___
 __This is bold text__
 *This is italic text*
 _This is italic text_
+***This is bold italic text***
 ~~Strikethrough~~
-[link text](http://example.com)
+<u>Underline</u>
+[Link text](http://example.com)
+<u>[ink text with underline](http://example.com)</u>
 
 ## Blockquotes
 
