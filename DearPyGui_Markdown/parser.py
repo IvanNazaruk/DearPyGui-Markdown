@@ -245,7 +245,9 @@ class _HTMLToParser(HTMLParser):
                         for style in style_string.split(";"):
                             style = style.split(":", 1)
                             style_dict[style[0]] = style[1].strip()
-                        color = style_dict.get("color", None).removeprefix("rgb").removeprefix("a")
+                        color = style_dict.get("color", None)
+                        if color:
+                            color = color.removeprefix("rgb").removeprefix("a")
                 except Exception:
                     traceback.print_exc()
 
