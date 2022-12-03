@@ -1,6 +1,13 @@
 ## DearPyGui-Markdown
 Almost all basic Markdown implementation, as well as additional support in the form of text customization (color, size) as a custom HTML tag.
 
+
+
+https://user-images.githubusercontent.com/46572469/205448714-32725bbb-c2ec-4022-9ea5-1ee4718017e8.mp4
+
+
+
+
 ## How to run example
 1. `git clone https://github.com/IvanNazaruk/DearPyGui-Markdown`
 2. `cd DearPyGui-Markdown`
@@ -106,12 +113,12 @@ dpg.destroy_context()
    - `<font color="(255, 50, 255)">Test</font>`
    - `<font color="255, 50, 255, 50">Test</font>`          
    - `<font color="[50, 50, 255, 100]">Test</font>`   
-2. HEX color
+2. HEX color:
    - `<font color="#9628d1">Test</font>`  
    - `<font color="#9628d1ba">Test</font>`  
 3. Size:
    - `<font size=50>Test</font>`  
    - `<font size="25">Test</font>` 
-4. Color + Size
+4. Color + Size:
    - `<font size=50 color="(255, 50, 255)">Test</font>`  
    - `<font size="20" color="#9628d1ba">Test</font>`  
