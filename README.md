@@ -101,7 +101,7 @@ dpg.destroy_context()
 - [x] Code:
    - [x] Line **\`**
    - [x] Blocks **\`\`\`**
-   - [x] Syntax highlight **\`\`\`python**
+   - [x] Syntax highlight **\`\`\`python** (need installed Pygments: `pip install pygments`)
 - [ ] Images:
    - [ ] Link
    - [ ] Path

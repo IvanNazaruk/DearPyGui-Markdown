@@ -11,9 +11,6 @@ from dataclasses import dataclass, field
 from html.parser import HTMLParser
 
 import mistletoe
-from pygments import highlight
-from pygments.formatters.html import HtmlFormatter
-from pygments.lexers import get_lexer_by_name as get_lexer, guess_lexer
 
 from .attribute_types import AttributeConnector
 
@@ -340,17 +337,30 @@ class _HTMLToParser(HTMLParser):
         self.entities.append(entity)
 
 
-class _PygmentsRenderer(mistletoe.HTMLRenderer):
-    formatter = HtmlFormatter(style='monokai')
-    formatter.noclasses = True
+try:
+    import pygments
+    from pygments import highlight
+    from pygments.formatters.html import HtmlFormatter
+    from pygments.lexers import get_lexer_by_name as get_lexer, guess_lexer
 
-    def __init__(self, *extras):
-        super().__init__(*extras)
 
-    def render_block_code(self, token):
-        code = token.children[0].content
-        lexer = get_lexer(token.language) if token.language else guess_lexer(code)
-        return highlight(code, lexer, self.formatter)
+    class _PygmentsRenderer(mistletoe.HTMLRenderer):
+        formatter = HtmlFormatter(style='monokai')
+        formatter.noclasses = True
+
+        def __init__(self, *extras):
+            super().__init__(*extras)
+
+        def render_block_code(self, token):
+            code = token.children[0].content
+            try:
+                lexer = get_lexer(token.language) if token.language else guess_lexer(code)
+            except pygments.util.ClassNotFound:  # noqa
+                return f"<pre>{code}</pre>"
+            return highlight(code, lexer, self.formatter)
+except ModuleNotFoundError:
+    class _PygmentsRenderer(mistletoe.HTMLRenderer):
+        ...
 
 
 def parse(html_text: str) -> [str, list[MessageEntity]]:
