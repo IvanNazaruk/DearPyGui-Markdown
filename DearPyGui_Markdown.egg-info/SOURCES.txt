@@ -1,0 +1,15 @@
+LICENSE
+README.md
+setup.py
+DearPyGui_Markdown/__init__.py
+DearPyGui_Markdown/attribute_types.py
+DearPyGui_Markdown/font_attributes.py
+DearPyGui_Markdown/line_atributes.py
+DearPyGui_Markdown/parser.py
+DearPyGui_Markdown/text_attributes.py
+DearPyGui_Markdown/text_entities.py
+DearPyGui_Markdown.egg-info/PKG-INFO
+DearPyGui_Markdown.egg-info/SOURCES.txt
+DearPyGui_Markdown.egg-info/dependency_links.txt
+DearPyGui_Markdown.egg-info/requires.txt
+DearPyGui_Markdown.egg-info/top_level.txt
