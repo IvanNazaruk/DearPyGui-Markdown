@@ -1,7 +1,7 @@
 import threading
 import time
 import traceback
-from typing import List, Any, Callable, Union, Tuple
+from typing import Iterable, List, Any, Callable, Union, Tuple
 
 import dearpygui.dearpygui as dpg
 
@@ -96,6 +96,20 @@ from . import parser
 from . import text_attributes
 from . import text_entities
 from .font_attributes import set_font_registry, set_add_font_function, set_font
+
+
+def is_in_container(dpg_item: int | str, containers_list: Iterable[str]) -> bool:
+    parent = dpg_item
+    while True:
+        parent = dpg.get_item_parent(parent)
+        if parent is None:
+            return False
+        object_type = dpg.get_item_info(parent)['type']
+        print(object_type)
+        if object_type in containers_list:
+            return True
+        if object_type == 'mvAppItemType::mvWindowAppItem':
+            return False
 
 
 def wrap_text_entity(text: text_entities.StrEntity | text_entities.TextEntity, width: int | float = -1) -> text_entities.LineEntity:
@@ -234,6 +248,9 @@ class _ConvertedMessageEntity:
 
 class MarkdownText:
     text_entity: text_entities.TextEntity | text_entities.StrEntity
+    black_list_render_containers = ("mvAppItemType::mvTab", # Used to prevent rendering in some containers
+                                    "mvAppItemType::mvTabBar",
+                                    "mvAppItemType::mvTreeNode")
 
     def __init__(self, markdown_text: str):
         clear_text, attributes = parser.parse(markdown_text)
@@ -281,38 +298,87 @@ class MarkdownText:
                 str_entity.set_attributes(str_attributes)
                 self.text_entity.append(str_entity)
 
-    def add(self, wrap: int | float = -1, parent=0):
-        '''
+    def add(self, wrap: int | float = -1, parent=0, render_on_element_visible: int | str | bool | None = True) -> int | str:
+        """
         :param wrap: Number of pixels from the start of the item until wrapping starts.
         :param parent: Parent to add this item to. (runtime adding)
+        :param render_on_element_visible: Controls the rendering behavior based on visibility:
+            - None: Only applies when the element is within on a dpg.tab or dpg.tree_node containers.
+            - True: Default behavior. Renders the element after it becomes visible.
+            - False: Explicitly renders the element immediately after creation. Caution: May cause incorrect
+              rendering if the element is within a dpg.tab or dpg.tree_node containers or parent container is not visible.
+            - int or str: Tag of another element. The visibility handler will be attached to the specified element.
+              Note: If the target element already has a visibility handler, it will be replaced.
         :return: group with rendered text
-        '''
+        """
         print_text: text_entities.LineEntity = wrap_text_entity(self.text_entity, width=wrap)
 
         with dpg.group(parent=parent, horizontal=True) as group:
             text_group = dpg.add_group(parent=group)
             attributes_group = dpg.add_group(parent=group)
 
+        if render_on_element_visible is None:
+            render_on_element_visible = is_in_container(group, self.black_list_render_containers)
+
+        if render_on_element_visible is not False:
+            with dpg.item_handler_registry() as widget_handler:
+                dpg.add_item_visible_handler(callback=self._render_after_visible_callback,
+                                             user_data=(widget_handler, (print_text, group, text_group, attributes_group)))
+
+            if render_on_element_visible is True:
+                dpg.bind_item_handler_registry(group, widget_handler)
+            else:
+                dpg.bind_item_handler_registry(render_on_element_visible, widget_handler)
+
+            return group
+
         if not CallWhenDPGStarted.STARTUP_DONE:
-            CallWhenDPGStarted.append(dpg.bind_item_theme, group, text_entities.AttributeController.dpg_group_theme)
-            CallWhenDPGStarted.append(print_text.render, parent=text_group, attributes_group=attributes_group)
+            CallWhenDPGStarted.append(self._render, print_text, group, text_group, attributes_group)
         else:
-            dpg.bind_item_theme(group, text_entities.AttributeController.dpg_group_theme)
-            print_text.render(parent=text_group, attributes_group=attributes_group)
+            self._render(print_text, group, text_group, attributes_group)
         return group
+
+    @staticmethod
+    def _render(print_text: text_entities.LineEntity, group: int | str, text_group: int | str, attributes_group: int | str):
+        dpg.bind_item_theme(group, text_entities.AttributeController.dpg_group_theme)
+        print_text.render(parent=text_group, attributes_group=attributes_group)
+
+    @staticmethod
+    def _render_after_visible_callback(sender, app_data):
+        user_data = dpg.get_item_user_data(sender)
+        if user_data is None:
+            return
+        print("render:", app_data)
+        dpg.set_item_user_data(sender, None)
+
+        widget_handler = user_data[0]
+        print_text, group, text_group, attributes_group = user_data[1]
+
+        dpg.delete_item(sender)
+        dpg.delete_item(widget_handler)
+
+        MarkdownText._render(print_text, group, text_group, attributes_group)
 
 
 def add_text(markdown_text: str,
              wrap: float | int = -1,
              parent: int | str = 0,
-             pos: list[int | float, int | float] | tuple[int | float, int | float] = None, ) -> int:
-    ''' Adds Markdown text.
+             pos: list[int | float, int | float] | tuple[int | float, int | float] = None,
+             render_on_element_visible: int | str | bool | None = True) -> int:
+    """ Adds Markdown text.
     :param wrap: Number of pixels from the start of the item until wrapping starts.
     :param parent: Parent to add this item to. (runtime adding)
     :pos: Places the item relative to window coordinates, [0,0] is top left.
+    :param render_on_element_visible: Controls the rendering behavior based on visibility:
+        - None: Only applies when the element is within on a dpg.tab or dpg.tree_node containers.
+        - True: Default behavior. Renders the element after it becomes visible.
+        - False: Explicitly renders the element immediately after creation. Caution: May cause incorrect
+          rendering if the element is within a dpg.tab or dpg.tree_node containers or parent container is not visible.
+        - int or str: Tag of another element. The visibility handler will be attached to the specified element.
+          Note: If the target element already has a visibility handler, it will be replaced.
     :return: group with rendered Markdown text
-    '''
-    rendered_group = MarkdownText(markdown_text=markdown_text).add(wrap=wrap, parent=parent)
+    """
+    rendered_group = MarkdownText(markdown_text=markdown_text).add(wrap=wrap, parent=parent, render_on_element_visible=render_on_element_visible)
     if pos is not None:
         dpg.set_item_pos(rendered_group, pos)
     return rendered_group

@@ -3,7 +3,7 @@ import os
 from setuptools import setup
 
 pkg_name = 'DearPyGui_Markdown'
-version = '1.0.1'
+version = '1.0.2'
 
 
 def list_dir_all(top_dir='.'):

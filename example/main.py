@@ -17,6 +17,7 @@ wrap_width = -1
 
 dpg.create_context()
 dpg.create_viewport(title='Markdown example', width=900, height=900)
+dpg.setup_dearpygui()
 dpg.bind_font(font.load())
 
 
@@ -84,7 +85,6 @@ with dpg.window() as window:
                     dpg_markdown.add_text(test_text.text)
 
 dpg.set_primary_window(window, True)
-dpg.setup_dearpygui()
 dpg.show_viewport()
 dpg.start_dearpygui()
 dpg.destroy_context()
