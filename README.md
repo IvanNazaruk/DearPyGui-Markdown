@@ -7,17 +7,14 @@ https://user-images.githubusercontent.com/46572469/205448714-32725bbb-c2ec-4022-
 
 
 
+## How to install
+`pip install git+https://github.com/IvanNazaruk/DearPyGui-Markdown`
 
 ## How to run example
 1. `git clone https://github.com/IvanNazaruk/DearPyGui-Markdown`
 2. `cd DearPyGui-Markdown`
 3. `pip install -r requirements.txt`
 5. `python example/main.py`
-
-
-## How to install
-`pip install git+https://github.com/IvanNazaruk/DearPyGui-Markdown`
-
 
 ## How to use
 ```python
