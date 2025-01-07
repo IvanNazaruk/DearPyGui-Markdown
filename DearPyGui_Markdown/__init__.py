@@ -348,7 +348,7 @@ class MarkdownText:
         user_data = dpg.get_item_user_data(sender)
         if user_data is None:
             return
-        print("render:", app_data)
+        
         dpg.set_item_user_data(sender, None)
 
         widget_handler = user_data[0]
