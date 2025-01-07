@@ -16,11 +16,8 @@ https://user-images.githubusercontent.com/46572469/205448714-32725bbb-c2ec-4022-
 
 
 ## How to install
-1. `git clone https://github.com/IvanNazaruk/DearPyGui-Markdown`
-2. `cd DearPyGui-Markdown`
-3. `pip install -r requirements.txt`
-4. Move `DearPyGui_Markdown` folder to your project
-5. Import the library into a Python script: `import DearPyGui_Markdown as dpg_markdown`
+`pip install git+https://github.com/IvanNazaruk/DearPyGui-Markdown`
+
 
 ## How to use
 ```python
