@@ -25,7 +25,10 @@ def load() -> int:
     '''
     :return: default font
     '''
-    ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    except:
+        pass
 
     dpg_markdown.set_font_registry(dpg.add_font_registry())
     dpg_markdown.set_add_font_function(add_font)
