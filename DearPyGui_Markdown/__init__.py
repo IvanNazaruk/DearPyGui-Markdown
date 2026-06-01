@@ -105,7 +105,6 @@ def is_in_container(dpg_item: int | str, containers_list: Iterable[str]) -> bool
         if parent is None:
             return False
         object_type = dpg.get_item_info(parent)['type']
-        print(object_type)
         if object_type in containers_list:
             return True
         if object_type == 'mvAppItemType::mvWindowAppItem':
@@ -311,7 +310,6 @@ class MarkdownText:
               Note: If the target element already has a visibility handler, it will be replaced.
         :return: group with rendered text
         """
-        print_text: text_entities.LineEntity = wrap_text_entity(self.text_entity, width=wrap)
 
         with dpg.group(parent=parent, horizontal=True) as group:
             text_group = dpg.add_group(parent=group)
@@ -323,7 +321,7 @@ class MarkdownText:
         if render_on_element_visible is not False:
             with dpg.item_handler_registry() as widget_handler:
                 dpg.add_item_visible_handler(callback=self._render_after_visible_callback,
-                                             user_data=(widget_handler, (print_text, group, text_group, attributes_group)))
+                                             user_data=(widget_handler, (self.text_entity, wrap, group, text_group, attributes_group)))
 
             if render_on_element_visible is True:
                 dpg.bind_item_handler_registry(group, widget_handler)
@@ -332,6 +330,7 @@ class MarkdownText:
 
             return group
 
+        print_text: text_entities.LineEntity = wrap_text_entity(self.text_entity, width=wrap)
         if not CallWhenDPGStarted.STARTUP_DONE:
             CallWhenDPGStarted.append(self._render, print_text, group, text_group, attributes_group)
         else:
@@ -348,15 +347,16 @@ class MarkdownText:
         user_data = dpg.get_item_user_data(sender)
         if user_data is None:
             return
-        
+
         dpg.set_item_user_data(sender, None)
 
         widget_handler = user_data[0]
-        print_text, group, text_group, attributes_group = user_data[1]
+        text_entity, wrap, group, text_group, attributes_group = user_data[1]
 
         dpg.delete_item(sender)
         dpg.delete_item(widget_handler)
 
+        print_text = wrap_text_entity(text_entity, width=wrap)
         MarkdownText._render(print_text, group, text_group, attributes_group)
 
 
